@@ -1,125 +1,132 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Badminton Court Manager</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badminton Queue Master</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-  <header class="topbar">
-    <h1>Badminton Court Manager</h1>
-    <p class="subtitle">คำนวณค่าสนาม · จัดคิวทีม · Scoreboard · Elo · ประวัติการแข่งขัน</p>
-  </header>
+<body class="dark-mode">
+    <nav class="navbar">
+        <div class="nav-brand">BADMINTON Q</div>
+        <div class="nav-links">
+            <button onclick="showView('dashboard')" title="หน้าหลัก"><i class="fas fa-home"></i></button>
+            <button onclick="showView('queue')" title="จัดการคิว"><i class="fas fa-users"></i></button>
+            <button onclick="showView('courts')" title="สถานะสนาม"><i class="fas fa-table-tennis"></i></button>
+            <button onclick="showView('leaderboard')" title="ตารางคะแนน"><i class="fas fa-trophy"></i></button>
+        </div>
+    </nav>
 
-  <main class="container">
-    <section class="left">
-      <div class="card">
-        <h2>คำนวณค่าสนาม</h2>
-        <div class="field">
-          <label>ราคา / ชั่วโมง</label>
-          <input id="hourlyRate" type="number" value="100">
-        </div>
-        <div class="field row">
-          <label>ช่วงจอง</label>
-          <input id="bookingStart" type="time" value="18:00">
-          <input id="bookingEnd" type="time" value="23:00">
-        </div>
-        <div class="field row">
-          <label>เพิ่มผู้เล่น</label>
-          <input id="playerName" type="text" placeholder="ชื่อ เช่น A">
-          <input id="playerStart" type="time" value="18:00">
-          <input id="playerEnd" type="time" value="19:00">
-          <button id="addPlayerBtn">เพิ่ม</button>
-        </div>
-        <div class="field" style="display:flex;justify-content:space-between;align-items:center">
-          <strong>รายการผู้เล่น</strong>
-          <button id="calcFees" class="btn-green">คำนวณค่าใช้จ่าย</button>
-        </div>
-        <div class="players-list card small" id="playersListWrap">
-          <table id="playersTable"><thead><tr><th>ชื่อ</th><th>เข้า</th><th>ออก</th><th>นาที</th><th></th></tr></thead><tbody></tbody></table>
-        </div>
-        <div id="feeResult" class="muted"></div>
-        
-      </div>
-
-      <div class="card" style="margin-top:14px">
-        <h2>ระบบจัดคิวทีม (King-of-court)</h2>
-        <div class="row field">
-          <input id="teamNameInput" type="text" placeholder="เพิ่มทีม เช่น A">
-          <button id="addTeamBtn">เพิ่มทีม</button>
-        </div>
-        <div class="row field">
-          <label>แต้มต่อเกม</label>
-          <input id="pointsToWin" type="number" value="21">
-          <label>ชนะติดต่อแล้วออก</label>
-          <input id="winStreakLimit" type="number" value="2">
-          <label>K-factor (Elo)</label>
-          <input id="kFactor" type="number" value="32">
-        </div>
-        <div class="row" style="gap:8px">
-          <button id="startQueueBtn" class="btn">เริ่มคิว</button>
-          <button id="nextMatchBtn" class="btn">ถัดไป</button>
-          <button id="resetQueueBtn" class="btn-red">รีเซ็ต</button>
-        </div>
-
-        <h3>คิวปัจจุบัน</h3>
-        <div id="queueList" class="teams-list card small"></div>
-
-        <h3>คอร์ทปัจจุบัน</h3>
-        <div id="court" class="card small">(ยังไม่มีทีมเล่น)</div>
-        <div class="row" style="align-items:center;margin-top:8px">
-          <label>ผู้ชนะ</label>
-          <select id="winnerSelect"></select>
-          <button id="recordWinBtn" class="btn-green">บันทึกผล</button>
-        </div>
-      </div>
-    </section>
-
-    <aside class="right">
-      <div class="card">
-        <h2>Scoreboard</h2>
-        <p class="muted">ชื่อทีมจะขึ้นอัตโนมัติเมื่อเริ่มแมตช์</p>
-        <div class="scoreboard">
-          <div class="team-block">
-            <div id="team1Name" class="team-name">Team 1</div>
-            <div class="score-controls">
-              <button onclick="changeScore(1,'plus')" class="sbtn">+</button>
-              <div id="team1Score" class="score-value">0</div>
-              <button onclick="changeScore(1,'minus')" class="sbtn">−</button>
+    <main class="container">
+        <section id="dashboard" class="view">
+            <div class="card">
+                <h2><i class="fas fa-user-plus"></i> เพิ่มผู้เล่นใหม่</h2>
+                <div class="input-group">
+                    <input type="text" id="playerName" placeholder="พิมพ์ชื่อผู้เล่นที่นี่...">
+                    <button onclick="addPlayer()" class="btn-primary">
+                        <i class="fas fa-plus"></i> เพิ่ม
+                    </button>
+                </div>
             </div>
-          </div>
-          <div class="team-block">
-            <div id="team2Name" class="team-name">Team 2</div>
-            <div class="score-controls">
-              <button onclick="changeScore(2,'plus')" class="sbtn">+</button>
-              <div id="team2Score" class="score-value">0</div>
-              <button onclick="changeScore(2,'minus')" class="sbtn">−</button>
+            <div id="playerList" class="player-grid">
+                </div>
+        </section>
+
+        <section id="queue" class="view" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-clock"></i> คิวผู้เล่นปัจจุบัน</h2>
+                    <span id="queueCount" class="badge">0 คน</span>
+                </div>
+                <div id="queueList" class="queue-list">
+                    <p class="empty-msg">ยังไม่มีผู้เล่นในคิว...</p>
+                </div>
+                <button onclick="autoMatch()" class="btn-success mt-1" style="width: 100%;">
+                    <i class="fas fa-robot"></i> จัดสนามอัตโนมัติ (AI Match)
+                </button>
             </div>
-          </div>
-        </div>
-        <div style="margin-top:10px">
-          <button onclick="resetMatchScore()" class="btn-red">รีเซ็ตคะแนน</button>
-        </div>
-      </div>
 
-      <div class="card" style="margin-top:14px">
-        <h2>ELO Rankings</h2>
-        <table id="ratingTable"><thead><tr><th>ทีม</th><th>Elo</th><th>W</th><th>L</th><th>Streak</th></tr></thead><tbody></tbody></table>
-      </div>
+            <div class="card mt-2">
+                <h2><i class="fas fa-hand-paper"></i> จัดคิวด้วยตนเอง (Manual)</h2>
+                <div class="manual-match-container">
+                    <div class="player-selection-grid">
+                        <div class="team-select">
+                            <h3 class="team-a-label">ทีม A</h3>
+                            <select id="player1"><option value="">เลือกผู้เล่น 1</option></select>
+                            <select id="player2"><option value="">เลือกผู้เล่น 2</option></select>
+                        </div>
+                        <div class="vs-divider">VS</div>
+                        <div class="team-select">
+                            <h3 class="team-b-label">ทีม B</h3>
+                            <select id="player3"><option value="">เลือกผู้เล่น 3</option></select>
+                            <select id="player4"><option value="">เลือกผู้เล่น 4</option></select>
+                        </div>
+                    </div>
+                    
+                    <div class="court-select-wrapper mt-1">
+                        <label for="targetCourt"><i class="fas fa-map-marker-alt"></i> เลือกสนามที่ต้องการ:</label>
+                        <select id="targetCourt">
+                            <option value="">-- กรุณาเลือกสนาม --</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="manualMatch()" class="btn-primary mt-1" style="width: 100%;">
+                        <i class="fas fa-check-circle"></i> ยืนยันการจัดสนาม
+                    </button>
+                </div>
+            </div>
+            <div class="card mt-2">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2><i class="fas fa-calendar-alt"></i> ตารางการแข่งขันล่วงหน้า</h2>
+                    <button onclick="generateRoundRobin()" class="btn-success" style="padding: 5px 10px; font-size: 0.8em;">
+                        <i class="fas fa-magic"></i> จัดทัวร์นาเมนต์อัตโนมัติ
+                    </button>
+                </div>
+                
+                <div id="matchPlanList">
+                    </div>
+                
+                <button onclick="addNewMatchToRound()" class="btn-primary mt-1" style="width: 100%;">
+                    <i class="fas fa-plus"></i> เพิ่มคู่แข่งขันเอง
+                </button>
+            </div>
+        </section>
 
-      <div class="card" style="margin-top:14px">
-        <h2>Match History</h2>
-        <div id="historyList" class="small"></div>
-        <div style="margin-top:8px">
-          <button id="exportCsv" class="btn">Export CSV</button>
-        </div>
-      </div>
-    </aside>
-  </main>
+        <section id="courts" class="view" style="display:none;">
+            <div class="card mb-1">
+                <div class="court-controls">
+                    <i class="fas fa-cog"></i>
+                    <label for="courtCount">จำนวนสนามทั้งหมด:</label>
+                    <input type="number" id="courtCount" value="2" min="1" max="10" onchange="updateCourtCount()">
+                </div>
+            </div>
+            <div id="courtContainer" class="court-grid">
+                </div>
+        </section>
 
-  
+        <section id="leaderboard" class="view" style="display:none;">
+            <div class="card">
+                <h2><i class="fas fa-medal"></i> อันดับผู้เล่นยอดเยี่ยม</h2>
+                <div class="table-responsive">
+                    <table id="leaderboardTable">
+                        <thead>
+                            <tr>
+                                <th>อันดับ</th>
+                                <th>ชื่อผู้เล่น</th>
+                                <th>Rating</th>
+                                <th>ชนะ/แพ้</th>
+                                <th>Win Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
 
-  <script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
